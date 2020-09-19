@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    //消息通知相关功能引用
     use Notifiable;
 
     /**
@@ -15,6 +16,7 @@ class User extends Authenticatable
      *
      * @var array
      */
+    //只有包含在该属性中的字段才能够被正常更新：
     protected $fillable = [
         'name', 'email', 'password',
     ];
@@ -24,6 +26,7 @@ class User extends Authenticatable
      *
      * @var array
      */
+    //当我们需要对用户密码或其它敏感信息在用户实例通过数组或 JSON 显示时进行隐藏
     protected $hidden = [
         'password', 'remember_token',
     ];
