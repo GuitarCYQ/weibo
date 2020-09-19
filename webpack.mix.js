@@ -11,5 +11,6 @@ const mix = require('laravel-mix');
  |
  */
 
+//version() 加上这个生成了一段随机码 是为了浏览器的没有缓存
 mix.js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'public/css');
+    .sass('resources/sass/app.scss', 'public/css').version();
