@@ -12,12 +12,18 @@ class UsersController extends Controller
     {
         $this->middleware('auth', [
             //except 指定除了...不用经过auth中间件 其他都要
-            'except' => ['show','create','store'],
+            'except' => ['show','create','store','index'],
         ]);
 
         $this->middleware('guest', [
             'only' => ['create']
         ]);
+    }
+
+    public function index()
+    {
+        $users = User::paginate(10);
+        return view('users.index',compact('users'));
     }
 
     public function create()
