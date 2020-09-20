@@ -59,18 +59,15 @@ class UsersController extends Controller
     }
 
     //发送邮件
-    public function sendEmailConfirmationTo($user)
+    protected function sendEmailConfirmationTo($user)
     {
-        $view = 'emails.confirm';//邮件模板
-        $data = compact('user');//传递给视图的数组数据
-        $from = 'guitar@example.com';//发件邮箱
-        $name = 'Guitar';//发件人
-        $to = $user->email;//发送到哪个邮箱
-        $subject = '感谢注册Weibo应用！请确认您的邮箱。';//邮件内容
+        $view = 'emails.confirm';
+        $data = compact('user');
+        $to = $user->email;
+        $subject = "感谢注册 Weibo 应用！请确认你的邮箱。";
 
-        //Mail最后是一个用来接收邮件消息实例的闭包回调，我们可以在该回调中自定义邮件消息的发送者、接收者、邮件主题等信息
-        Mail::seed($view, $data, function ($message) use ($from, $name, $to, $subject) {
-           $message->from($from, $name)->to($to)->subject($subject);
+        Mail::send($view, $data, function ($message) use ($to, $subject) {
+            $message->to($to)->subject($subject);
         });
     }
 
