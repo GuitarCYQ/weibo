@@ -23,7 +23,7 @@ class SessionsController extends Controller
     {
         $credentials = $this->validate($request, [
             'email' => 'required|email|max:255',
-            'password' => 'required'
+            'password' => 'requird'
         ]);
 
         if (Auth::attempt($credentials, $request->has('remember'))){
