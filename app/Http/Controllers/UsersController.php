@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Mail;
 
 class UsersController extends Controller
 {
     public function __construct()
     {
+        //未登录可以访问
         $this->middleware('auth', [
             //except 指定除了...不用经过auth中间件 其他都要
-            'except' => ['show','create','store','index'],
+            'except' => ['show','create','store','index','confirmEmail'],
         ]);
 
+        //可访问别人
         $this->middleware('guest', [
             'only' => ['create']
         ]);
@@ -50,12 +53,39 @@ class UsersController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        //注册成功后自动登陆
+        $this->sendEmailConfirmationTo($user);
+        session()->flash('success','验证邮件已经发送到你的邮箱上，请注意查收');
+        return redirect('/');
+    }
+
+    //发送邮件
+    public function sendEmailConfirmationTo($user)
+    {
+        $view = 'emails.confirm';//邮件模板
+        $data = compact('user');//传递给视图的数组数据
+        $from = 'guitar@example.com';//发件邮箱
+        $name = 'Guitar';//发件人
+        $to = $user->email;//发送到哪个邮箱
+        $subject = '感谢注册Weibo应用！请确认您的邮箱。';//邮件内容
+
+        //Mail最后是一个用来接收邮件消息实例的闭包回调，我们可以在该回调中自定义邮件消息的发送者、接收者、邮件主题等信息
+        Mail::seed($view, $data, function ($message) use ($from, $name, $to, $subject) {
+           $message->from($from, $name)->to($to)->subject($subject);
+        });
+    }
+
+    //激活邮箱
+    public function confirmEmail($token)
+    {
+        $user = User::where('activation_token',$token)->firstOrFail();
+
+        $user->activated = true;
+        $user->activation_token = null;
+        $user->save();
+
         Auth::login($user);
-
-        session()->flash('success','欢迎，您将在这里开启一段新的旅程~');
-
-        return redirect()->route('users.show', [$user]);
+        session()->flash('success','恭喜你，激活成功!');
+        return redirect()->route('users.show',[$user]);
     }
 
     public function edit(User $user)
@@ -83,6 +113,8 @@ class UsersController extends Controller
 
         return redirect()->route('users.show', $user->id);
     }
+
+
 
     public function destroy(User $user)
     {

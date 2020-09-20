@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -31,6 +32,16 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    //在用户注册之前生成邮件令牌 以便激活
+    public static function boot(){
+        parent::boot();
+
+        static::creating(function ($user){
+            $user->activation_token = Str::random(10);
+        });
+    }
+
+
     /**
      * The attributes that should be cast to native types.
      *
@@ -47,4 +58,5 @@ class User extends Authenticatable
         $hash =  md5(strtolower(trim($this->attributes['email'])));
         return "https://www.gravatar.com/avatar/$hash?s=$size";
     }
+
 }
